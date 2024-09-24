@@ -22,9 +22,9 @@ set_property -dict {LOC R3  } [get_ports sfp_tx_n] ;# MGTHTXN2_224 GTHE4_CHANNEL
 set_property -dict {LOC Y6  } [get_ports sfp_mgt_refclk_p] ;# MGTREFCLK0P_224 from U90
 set_property -dict {LOC Y5  } [get_ports sfp_mgt_refclk_n] ;# MGTREFCLK0N_224 from U90
 set_property -dict {LOC Y10  IOSTANDARD LVCMOS33 SLEW SLOW DRIVE 8} [get_ports sfp_tx_disable] ;# HDB19 som240_2_a47
-set_property -dict {LOC A10  IOSTANDARD LVCMOS33 SLEW SLOW DRIVE 8} [get_ports sfp_tx_fault]   ;# HDA19 som240_1_c23
-set_property -dict {LOC J12  IOSTANDARD LVCMOS33 SLEW SLOW DRIVE 8} [get_ports sfp_rx_los]     ;# HDA10 som240_1_a16
-set_property -dict {LOC W10  IOSTANDARD LVCMOS33 SLEW SLOW DRIVE 8} [get_ports sfp_mod_abs]    ;# HDB18 som240_2_a46
+set_property -dict {LOC A10  IOSTANDARD LVCMOS33                  } [get_ports sfp_tx_fault]   ;# HDA19 som240_1_c23
+set_property -dict {LOC J12  IOSTANDARD LVCMOS33                  } [get_ports sfp_rx_los]     ;# HDA10 som240_1_a16
+set_property -dict {LOC W10  IOSTANDARD LVCMOS33                  } [get_ports sfp_mod_abs]    ;# HDB18 som240_2_a46
 set_property -dict {LOC AB11 IOSTANDARD LVCMOS33 SLEW SLOW DRIVE 8} [get_ports sfp_i2c_scl]    ;# HDB16 som240_2_b49
 set_property -dict {LOC AC11 IOSTANDARD LVCMOS33 SLEW SLOW DRIVE 8} [get_ports sfp_i2c_sda]    ;# HDB17 som240_2_b50
 
@@ -40,3 +40,6 @@ set_false_path -to [get_ports {sfp_i2c_sda sfp_i2c_scl}]
 set_output_delay 0 [get_ports {sfp_i2c_sda sfp_i2c_scl}]
 set_false_path -from [get_ports {sfp_i2c_sda sfp_i2c_scl}]
 set_input_delay 0 [get_ports {sfp_i2c_sda sfp_i2c_scl}]
+
+# FAN Control
+set_property -dict {LOC A12  IOSTANDARD LVCMOS33 SLEW SLOW DRIVE 4} [get_ports fan_en_b] ;# HDA20 som240_1_c24

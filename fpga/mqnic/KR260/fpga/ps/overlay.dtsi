@@ -3,7 +3,7 @@
 / {
 	fragment@0 {
 		target = <&fpga_full>;
-		__overlay__ {
+		overlay0: __overlay__ {
 			#address-cells = <2>;
 			#size-cells = <2>;
 			firmware-name = "fpga.bin";
@@ -11,7 +11,7 @@
 	};
 	fragment@1 {
 		target = <&amba>;
-		__overlay__ {
+		overlay1: __overlay__ {
 			#address-cells = <2>;
 			#size-cells = <2>;
 
@@ -52,6 +52,21 @@
 				assigned-clock-rates = <250000000>;
 				resets = <&zynqmp_reset 116>; // ZYNQMP_RESET_PS_PL0
 				reset-names = "reset";
+			};
+		};
+	};
+	fragment@2 {
+		target = <&i2c0>;
+		overlay2: __overlay__ {
+			status = "okay";
+			/* dt-bindings/power/xlnx-zynqmp-power.h PD_I2C_0 37 */
+			power-domains = <&zynqmp_firmware 37>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			eeprom_sfp0: eeprom_sfp0@50 {
+				compatible = "atmel,24c02";
+				reg = <0x50>;
 			};
 		};
 	};

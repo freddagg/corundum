@@ -153,6 +153,11 @@ module fpga #
     output wire [1:0]   sfp_led,
 
     /*
+     * Fan control
+     */
+    output wire         fan_en_b,
+
+    /*
      * Ethernet: SFP+
      */
     input  wire         sfp_rx_p,
@@ -290,30 +295,19 @@ wire sfp_i2c_sda_i;
 wire sfp_i2c_sda_o;
 wire sfp_i2c_sda_t;
 
-reg sfp_i2c_scl_o_reg;
-reg sfp_i2c_scl_t_reg;
-reg sfp_i2c_sda_o_reg;
-reg sfp_i2c_sda_t_reg;
-
-always @(posedge zynq_pl_clk) begin
-    sfp_i2c_scl_o_reg <= sfp_i2c_scl_o;
-    sfp_i2c_scl_t_reg <= sfp_i2c_scl_t;
-    sfp_i2c_sda_o_reg <= sfp_i2c_sda_o;
-    sfp_i2c_sda_t_reg <= sfp_i2c_sda_t;
-end
 
 sync_signal #(
-    .WIDTH(5),
+    .WIDTH(3),
     .N(2)
 )
 sync_signal_inst (
     .clk(zynq_pl_clk),
-    .in({sfp_tx_fault, sfp_rx_los, sfp_mod_abs, sfp_i2c_scl, sfp_i2c_sda}),
-    .out({sfp_tx_fault_int, sfp_rx_los_int, sfp_mod_abs_int, sfp_i2c_scl_i, sfp_i2c_sda_i})
+    .in({sfp_tx_fault, sfp_rx_los, sfp_mod_abs}),
+    .out({sfp_tx_fault_int, sfp_rx_los_int, sfp_mod_abs_int})
 );
 
-assign sfp_i2c_scl = sfp_i2c_scl_t_reg ? 1'bz : sfp_i2c_scl_o_reg;
-assign sfp_i2c_sda = sfp_i2c_sda_t_reg ? 1'bz : sfp_i2c_sda_o_reg;
+IOBUF sfp_i2c_scl_iobuf (.I(sfp_i2c_scl_o), .IO(sfp_i2c_scl), .O(sfp_i2c_scl_i), .T(sfp_i2c_scl_t));
+IOBUF sfp_i2c_sda_iobuf (.I(sfp_i2c_sda_o), .IO(sfp_i2c_sda), .O(sfp_i2c_sda_i), .T(sfp_i2c_sda_t));
 
 // Zynq AXI MM
 wire [IRQ_COUNT-1:0]                 irq;
@@ -420,6 +414,15 @@ zynq_ps zynq_ps_inst (
     .pl_clk0(zynq_pl_clk),
     .pl_reset(zynq_pl_reset),
     .pl_ps_irq0(zynq_irq),
+
+    .pl_ps_i2c0_scl_i(sfp_i2c_scl_i),
+    .pl_ps_i2c0_scl_o(sfp_i2c_scl_o),
+    .pl_ps_i2c0_scl_t(sfp_i2c_scl_t),
+    .pl_ps_i2c0_sda_i(sfp_i2c_sda_i),
+    .pl_ps_i2c0_sda_o(sfp_i2c_sda_o),
+    .pl_ps_i2c0_sda_t(sfp_i2c_sda_t),
+
+    .fan_control(fan_en_b),
 
     .m_axil_ctrl_araddr(axil_ctrl_araddr),
     .m_axil_ctrl_arprot(axil_ctrl_arprot),
@@ -641,9 +644,6 @@ assign ptp_clk = sfp_mgt_refclk_bufg;
 assign ptp_rst = sfp_rst;
 assign ptp_sample_clk = clk_125mhz_int;
 
-assign sfp_led[0] = sfp_rx_status;
-assign sfp_led[1] = 1'b0;
-
 fpga_core #(
     // FW and board IDs
     .FPGA_ID(FPGA_ID),
@@ -799,7 +799,7 @@ core_inst (
      * GPIO
      */
     .led(led),
-    // .sfp_led(sfp_led),
+    .sfp_led(sfp_led),
 
     /*
      * Interrupt outputs
@@ -911,12 +911,13 @@ core_inst (
     .sfp_tx_fault(sfp_tx_fault_int),
     .sfp_rx_los(sfp_rx_los_int),
     .sfp_mod_abs(sfp_mod_abs_int),
-    .sfp_i2c_scl_i(sfp_i2c_scl_i),
-    .sfp_i2c_scl_o(sfp_i2c_scl_o),
-    .sfp_i2c_scl_t(sfp_i2c_scl_t),
-    .sfp_i2c_sda_i(sfp_i2c_sda_i),
-    .sfp_i2c_sda_o(sfp_i2c_sda_o),
-    .sfp_i2c_sda_t(sfp_i2c_sda_t),
+
+    .sfp_i2c_scl_i(1'b0),
+    .sfp_i2c_scl_o(),
+    .sfp_i2c_scl_t(),
+    .sfp_i2c_sda_i(1'b0),
+    .sfp_i2c_sda_o(),
+    .sfp_i2c_sda_t(),
 
     .sfp_drp_clk(sfp_drp_clk),
     .sfp_drp_rst(sfp_drp_rst),

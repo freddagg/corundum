@@ -177,3 +177,6 @@ dict for {name value} $params {
 
 # set_property generic $param_list [current_fileset]
 set_property generic $param_list [get_filesets sources_1]
+
+# Only one GTH interface is enabled - eth_xcvr_gth_full.xci
+set_property is_enabled false [get_files eth_xcvr_gth_channel.xci]

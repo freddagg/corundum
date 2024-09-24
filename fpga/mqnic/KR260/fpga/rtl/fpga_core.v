@@ -571,7 +571,8 @@ endgenerate
 assign led[0] = 0;
 assign led[1] = ptp_pps_str;
 
-assign sfp_led = 0;
+assign sfp_led[0] = 0;
+assign sfp_led[1] = !sfp_mod_abs & sfp_rx_status;
 
 wire [PORT_COUNT-1:0]                         eth_tx_clk;
 wire [PORT_COUNT-1:0]                         eth_tx_rst;
